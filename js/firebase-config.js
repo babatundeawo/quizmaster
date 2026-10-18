@@ -1,0 +1,116 @@
+// Connects QuizMaster to Firebase: Firestore (data) and Authentication (players)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  setDoc,
+  doc,
+  deleteDoc,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInAnonymously,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+// STEP 1: Replace this object with YOUR OWN config from the Firebase console
+// (Project settings, Your apps, Web app). The web config is not a secret,
+// but never put passwords or service account files in this project.
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "PASTE_YOUR_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// ----- Questions -----
+export async function saveQuestionToCloud(question) {
+  const docRef = await addDoc(collection(db, "questions"), question);
+  return docRef.id;
+}
+
+export async function loadQuestionsFromCloud() {
+  const snapshot = await getDocs(collection(db, "questions"));
+  const list = [];
+  snapshot.forEach(function (document) {
+    const data = document.data();
+    data.id = document.id;
+    list.push(data);
+  });
+  return list;
+}
+
+export async function deleteQuestionFromCloud(id) {
+  await deleteDoc(doc(db, "questions", id));
+}
+
+// ----- Players -----
+export function watchAuth(callback) {
+  onAuthStateChanged(auth, callback);
+}
+
+export async function signInAsGuest() {
+  await signInAnonymously(auth);
+}
+
+export async function signInWithGoogle() {
+  await signInWithPopup(auth, new GoogleAuthProvider());
+}
+
+export async function signOutPlayer() {
+  await signOut(auth);
+}
+
+export async function loadPlayerProfile(uid) {
+  const snapshot = await getDoc(doc(db, "players", uid));
+  if (snapshot.exists()) {
+    return snapshot.data();
+  }
+  return null;
+}
+
+export async function savePlayerProfile(uid, profile) {
+  await setDoc(doc(db, "players", uid), profile);
+}
+
+// ----- Scores -----
+export async function saveScoreToCloud(uid, name, correct, total) {
+  await addDoc(collection(db, "scores"), {
+    uid: uid,
+    name: name,
+    points: correct * 10,
+    correct: correct,
+    total: total,
+    createdAt: serverTimestamp()
+  });
+}
+
+export async function loadTopScores() {
+  const topQuery = query(
+    collection(db, "scores"),
+    orderBy("points", "desc"),
+    limit(10)
+  );
+  const snapshot = await getDocs(topQuery);
+  const list = [];
+  snapshot.forEach(function (document) {
+    list.push(document.data());
+  });
+  return list;
+}

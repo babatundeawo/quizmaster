@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizMaster</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4a3fd6">
+  <link rel="apple-touch-icon" href="assets/images/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="QuizMaster">
+</head>
+<body>
+  <header class="app-header">
+    <h1>QuizMaster</h1>
+  </header>
+
+  <main>
+    <!-- Loading screen (shown first) -->
+    <section id="loading-screen" class="screen active">
+      <p>Loading QuizMaster...</p>
+    </section>
+
+    <!-- Sign-in screen -->
+    <section id="signin-screen" class="screen">
+      <h2>Who is playing?</h2>
+      <p>Sign in to save your scores and stats.</p>
+      <button id="google-btn">Sign in with Google</button>
+      <button id="guest-btn">Play as guest</button>
+      <p id="signin-message" class="msg-error"></p>
+    </section>
+
+    <!-- Name screen -->
+    <section id="name-screen" class="screen">
+      <h2>Choose your player name</h2>
+      <p>Use a nickname, not your real name. Other players will see it.</p>
+      <div class="editor-field">
+        <label for="player-name">Player name</label>
+        <input type="text" id="player-name" maxlength="15" placeholder="For example: QuizNinja">
+      </div>
+      <p id="name-message"></p>
+      <button id="save-name-btn">Save name</button>
+    </section>
+
+    <!-- Home screen -->
+    <section id="home-screen" class="screen">
+      <h2>Welcome, <span id="player-name-display"></span>!</h2>
+      <p>Test your brain and beat your best score.</p>
+      <p>Best score: <span id="home-best">0%</span> &middot; Games played: <span id="games-played">0</span></p>
+      <button id="start-btn">Start Quiz</button>
+      <button id="editor-btn">Question Editor</button>
+      <button id="leaderboard-btn">Leaderboard</button>
+      <p id="cloud-status" class="question-meta"></p>
+      <button id="signout-btn">Sign out</button>
+    </section>
+
+    <!-- Setup screen -->
+    <section id="setup-screen" class="screen">
+      <h2>Choose Your Quiz</h2>
+
+      <h3>Category</h3>
+      <div id="category-buttons" class="choice-box"></div>
+
+      <h3>Difficulty</h3>
+      <div id="difficulty-buttons" class="choice-box"></div>
+
+      <p id="setup-message"></p>
+      <button id="begin-btn">Begin Quiz</button>
+      <button id="setup-back-btn">Back</button>
+    </section>
+
+    <!-- Editor screen -->
+    <section id="editor-screen" class="screen">
+      <h2>Question Editor</h2>
+
+      <div class="editor-field">
+        <label for="new-question">Question</label>
+        <input type="text" id="new-question" maxlength="200" placeholder="Type your question">
+      </div>
+
+      <div class="editor-field">
+        <label for="new-option-0">Option A</label>
+        <input type="text" id="new-option-0">
+      </div>
+      <div class="editor-field">
+        <label for="new-option-1">Option B</label>
+        <input type="text" id="new-option-1">
+      </div>
+      <div class="editor-field">
+        <label for="new-option-2">Option C</label>
+        <input type="text" id="new-option-2">
+      </div>
+      <div class="editor-field">
+        <label for="new-option-3">Option D</label>
+        <input type="text" id="new-option-3">
+      </div>
+
+      <div class="editor-field">
+        <label for="new-answer">Correct answer</label>
+        <select id="new-answer">
+          <option value="0">A</option>
+          <option value="1">B</option>
+          <option value="2">C</option>
+          <option value="3">D</option>
+        </select>
+      </div>
+
+      <div class="editor-field">
+        <label for="new-category">Category</label>
+        <input type="text" id="new-category" maxlength="30" list="category-list"
+               placeholder="Pick one or type a new one">
+        <datalist id="category-list"></datalist>
+      </div>
+
+      <div class="editor-field">
+        <label for="new-difficulty">Difficulty</label>
+        <select id="new-difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+
+      <p id="editor-message"></p>
+      <button id="save-question-btn">Save Question</button>
+      <button id="editor-back-btn">Back</button>
+
+      <h3>My Questions</h3>
+      <ul id="custom-list"></ul>
+    </section>
+
+    <!-- Quiz screen -->
+    <section id="quiz-screen" class="screen">
+      <h2 id="question-number">Question 1</h2>
+      <p id="question-category" class="question-meta"></p>
+      <p id="live-score" class="question-meta">Score: 0</p>
+      <p id="timer" class="timer">Time: 15</p>
+      <p id="question-text"></p>
+      <div id="options"></div>
+      <button id="next-btn" class="hidden">Next</button>
+    </section>
+
+    <!-- Result screen -->
+    <section id="result-screen" class="screen">
+      <h2>Quiz Complete!</h2>
+      <p>Your score: <span id="final-score">0</span></p>
+      <p id="high-score-message"></p>
+      <p>Best score: <span id="best-score">0%</span></p>
+      <p id="leaderboard-status" class="question-meta"></p>
+      <button id="view-leaderboard-btn">View Leaderboard</button>
+      <button id="home-btn">Back to Home</button>
+    </section>
+
+    <!-- Leaderboard screen -->
+    <section id="leaderboard-screen" class="screen">
+      <h2>Leaderboard</h2>
+      <p class="question-meta">Top 10 single-game scores</p>
+      <p id="leaderboard-message"></p>
+      <ol id="leaderboard-list"></ol>
+      <button id="leaderboard-back-btn">Back</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built by me with Techbase</p>
+  </footer>
+
+  <script src="js/questions.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

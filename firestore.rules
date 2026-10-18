@@ -1,0 +1,82 @@
+// QuizMaster Firestore Security Rules (reference copy)
+// These are published in the Firebase console: Firestore database > Rules > Publish.
+// Keep the numbers in the "scores" rule (5 and 10) in step with
+// MIN_QUESTIONS_FOR_LEADERBOARD and MAX_QUESTIONS in js/app.js.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validName(name) {
+      return name is string && name.size() >= 2 && name.size() <= 15;
+    }
+
+    // ----- Quiz questions -----
+    match /questions/{questionId} {
+      allow read: if true;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(
+             ['category', 'difficulty', 'question', 'options', 'answer', 'createdBy'])
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.category is string
+        && request.resource.data.category.size() > 0
+        && request.resource.data.category.size() <= 30
+        && request.resource.data.question is string
+        && request.resource.data.question.size() > 0
+        && request.resource.data.question.size() <= 200
+        && request.resource.data.difficulty in ['easy', 'medium', 'hard']
+        && request.resource.data.options is list
+        && request.resource.data.options.size() == 4
+        && request.resource.data.answer is number
+        && request.resource.data.answer >= 0
+        && request.resource.data.answer <= 3;
+
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // ----- Player profiles -----
+    match /players/{playerId} {
+      allow read: if signedIn() && request.auth.uid == playerId;
+
+      allow create, update: if signedIn()
+        && request.auth.uid == playerId
+        && request.resource.data.keys().hasOnly(['name', 'gamesPlayed', 'bestPercent'])
+        && validName(request.resource.data.name)
+        && request.resource.data.gamesPlayed is number
+        && request.resource.data.gamesPlayed >= 0
+        && request.resource.data.bestPercent is number
+        && request.resource.data.bestPercent >= 0
+        && request.resource.data.bestPercent <= 100;
+
+      allow delete: if false;
+    }
+
+    // ----- Leaderboard scores -----
+    match /scores/{scoreId} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(
+             ['uid', 'name', 'points', 'correct', 'total', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && validName(request.resource.data.name)
+        && request.resource.data.total is number
+        && request.resource.data.total >= 5
+        && request.resource.data.total <= 10
+        && request.resource.data.correct is number
+        && request.resource.data.correct >= 0
+        && request.resource.data.correct <= request.resource.data.total
+        && request.resource.data.points == request.resource.data.correct * 10
+        && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+  }
+}

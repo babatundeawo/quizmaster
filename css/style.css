@@ -1,0 +1,263 @@
+:root {
+  --primary: #4a3fd6;
+  --primary-dark: #3a30b0;
+  --bg: #f0f4ff;
+  --card-bg: #ffffff;
+  --text: #222222;
+  --correct: #2e9e5b;
+  --wrong: #d64545;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-header {
+  width: 100%;
+  background-color: var(--primary);
+  color: white;
+  padding: 16px;
+}
+
+main {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+  flex: 1;
+}
+
+/* Screens become white cards */
+.screen {
+  display: none;
+  background-color: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.screen.active {
+  display: block;
+}
+
+.screen h2 {
+  margin-bottom: 12px;
+}
+
+.screen h3 {
+  margin: 12px 0 8px;
+  font-size: 1rem;
+}
+
+.screen p {
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  margin: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* Answer options stack vertically */
+#options {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-btn {
+  width: 100%;
+  margin: 6px 0;
+  text-align: left;
+  background-color: white;
+  color: var(--text);
+  border: 2px solid var(--primary);
+}
+
+.option-btn:hover {
+  background-color: #eceaff;
+}
+
+.option-btn.correct {
+  background-color: var(--correct);
+  border-color: var(--correct);
+  color: white;
+}
+
+.option-btn.wrong {
+  background-color: var(--wrong);
+  border-color: var(--wrong);
+  color: white;
+}
+
+footer {
+  padding: 16px;
+  font-size: 0.8rem;
+}
+
+/* Question details */
+.question-meta {
+  color: #777;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+#question-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+.timer {
+  font-weight: bold;
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+/* Setup screen */
+.choice-box {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.choice-btn {
+  background-color: white;
+  color: var(--text);
+  border: 2px solid var(--primary);
+  margin: 4px;
+  padding: 8px 14px;
+}
+
+.choice-btn:hover {
+  background-color: #eceaff;
+}
+
+.choice-btn.selected {
+  background-color: var(--primary);
+  color: white;
+}
+
+#setup-message {
+  color: var(--wrong);
+  min-height: 1.2em;
+}
+
+/* Editor and name screens */
+.editor-field {
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.editor-field label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.editor-field input,
+.editor-field select {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+}
+
+.editor-field input:focus,
+.editor-field select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.msg-error {
+  color: var(--wrong);
+}
+
+.msg-ok {
+  color: var(--correct);
+}
+
+#custom-list {
+  text-align: left;
+  padding-left: 20px;
+}
+
+#custom-list li {
+  margin-bottom: 6px;
+}
+
+/* Leaderboard */
+#leaderboard-list {
+  text-align: left;
+  padding-left: 28px;
+  margin-bottom: 16px;
+}
+
+#leaderboard-list li {
+  margin-bottom: 8px;
+}
+
+#leaderboard-list li.me {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* Bigger screens */
+@media (min-width: 600px) {
+  main {
+    padding: 40px 20px;
+  }
+
+  .app-header h1 {
+    font-size: 2.2rem;
+  }
+}
+
+/* Fade-in for screens */
+.screen.active {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
