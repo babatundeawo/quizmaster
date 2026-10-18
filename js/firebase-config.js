@@ -27,12 +27,12 @@ import {
 // (Project settings, Your apps, Web app). The web config is not a secret,
 // but never put passwords or service account files in this project.
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyAKrZecNwzVLx1x-ZOd01Ss7H2fDmEAUG4",
+  authDomain: "quizmaster-babatunde.firebaseapp.com",
+  projectId: "quizmaster-babatunde",
+  storageBucket: "quizmaster-babatunde.firebasestorage.app",
+  messagingSenderId: "109405767076",
+  appId: "1:109405767076:web:4a92224fd6fbc0243c6d31"
 };
 
 const app = initializeApp(firebaseConfig);
