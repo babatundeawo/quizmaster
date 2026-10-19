@@ -12,6 +12,7 @@ import {
   query,
   orderBy,
   limit,
+  where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
@@ -90,23 +91,38 @@ export async function savePlayerProfile(uid, profile) {
 }
 
 // ----- Scores -----
-export async function saveScoreToCloud(uid, name, correct, total) {
+export async function saveScoreToCloud(uid, name, correct, total, difficulty, category) {
   await addDoc(collection(db, "scores"), {
     uid: uid,
     name: name,
     points: correct * 10,
     correct: correct,
     total: total,
+    difficulty: difficulty,
+    category: category,
     createdAt: serverTimestamp()
   });
 }
 
-export async function loadTopScores() {
-  const topQuery = query(
-    collection(db, "scores"),
-    orderBy("points", "desc"),
-    limit(10)
-  );
+// level is "all", "easy", "medium", "hard" or "mixed".
+// Filtering by level together with sorting by points needs a one-time
+// Firestore composite index (see README: scores, difficulty + points).
+export async function loadTopScores(level) {
+  let topQuery;
+  if (level === "all") {
+    topQuery = query(
+      collection(db, "scores"),
+      orderBy("points", "desc"),
+      limit(10)
+    );
+  } else {
+    topQuery = query(
+      collection(db, "scores"),
+      where("difficulty", "==", level),
+      orderBy("points", "desc"),
+      limit(10)
+    );
+  }
   const snapshot = await getDocs(topQuery);
   const list = [];
   snapshot.forEach(function (document) {

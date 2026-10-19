@@ -27,6 +27,12 @@ const TIME_PER_QUESTION = 15;
 const BEST_KEY = "quizmasterBestPercent";
 const MAX_QUESTIONS = 10;
 const MIN_QUESTIONS_FOR_LEADERBOARD = 5;
+const DIFFICULTY_LABELS = {
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard",
+  mixed: "Mixed"
+};
 
 // ----- Quiz state -----
 let currentIndex = 0;
@@ -37,10 +43,13 @@ let timerId = null;
 let selectedCategory = "All";
 let selectedDifficulty = "All";
 let activeQuestions = [];
+let gameDifficulty = "mixed"; // difficulty of the game being played
+let gameCategory = "All";     // category of the game being played
 
 // ----- Player state -----
 let currentUser = null;
 let currentPlayer = null;
+let leaderboardRequest = 0; // counts leaderboard loads, so old answers are ignored
 
 // ----- Ending a question -----
 function revealCorrectAnswer() {
@@ -201,33 +210,74 @@ async function submitScore(correct, total) {
 
   status.textContent = "Sending score...";
   try {
-    await saveScoreToCloud(currentUser.uid, currentPlayer.name, correct, total);
-    status.textContent = "Score sent to the leaderboard!";
+    await saveScoreToCloud(
+      currentUser.uid,
+      currentPlayer.name,
+      correct,
+      total,
+      gameDifficulty,
+      gameCategory
+    );
+    status.textContent =
+      `Score sent to the leaderboard! (${DIFFICULTY_LABELS[gameDifficulty]} level)`;
   } catch (error) {
     console.log("Could not send score:", error);
     status.textContent = "Could not send your score to the leaderboard.";
   }
 }
 
-async function showLeaderboard() {
+function showLeaderboard() {
+  buildChoiceButtons(
+    "leaderboard-filter",
+    ["All", "Easy", "Medium", "Hard", "Mixed"],
+    function (label) {
+      loadLeaderboard(label.toLowerCase());
+    }
+  );
+  showScreen("leaderboard-screen");
+  loadLeaderboard("all");
+}
+
+async function loadLeaderboard(level) {
   const list = document.getElementById("leaderboard-list");
   const message = document.getElementById("leaderboard-message");
   list.innerHTML = "";
   message.textContent = "Loading...";
-  showScreen("leaderboard-screen");
+
+  leaderboardRequest = leaderboardRequest + 1;
+  const thisRequest = leaderboardRequest;
 
   try {
-    const topScores = await loadTopScores();
+    const topScores = await loadTopScores(level);
+
+    if (thisRequest !== leaderboardRequest) {
+      return; // a newer tab was chosen while we were waiting
+    }
 
     if (topScores.length === 0) {
-      message.textContent = "No scores yet. Be the first!";
+      message.textContent = "No scores yet at this level. Be the first!";
       return;
     }
     message.textContent = "";
 
     topScores.forEach(function (entry) {
       const item = document.createElement("li");
-      item.textContent = `${entry.name} - ${entry.points} points`;
+      item.textContent = `${entry.name} - ${entry.points} points `;
+
+      // Scores saved before levels existed have no difficulty, so show them as Mixed
+      const levelName = entry.difficulty || "mixed";
+      const badge = document.createElement("span");
+      badge.textContent = DIFFICULTY_LABELS[levelName] || "Mixed";
+      badge.classList.add("badge", `badge-${levelName}`);
+      item.appendChild(badge);
+
+      if (entry.category) {
+        const categoryTag = document.createElement("span");
+        categoryTag.textContent = entry.category;
+        categoryTag.classList.add("badge-category");
+        item.appendChild(categoryTag);
+      }
+
       if (currentUser && entry.uid === currentUser.uid) {
         item.classList.add("me");
       }
@@ -235,7 +285,15 @@ async function showLeaderboard() {
     });
   } catch (error) {
     console.log("Could not load the leaderboard:", error);
-    message.textContent = "Could not load the leaderboard.";
+    if (thisRequest !== leaderboardRequest) {
+      return;
+    }
+    if (error.code === "failed-precondition") {
+      message.textContent =
+        "This level needs a one-time database index. See the README (Firestore index).";
+    } else {
+      message.textContent = "Could not load the leaderboard.";
+    }
   }
 }
 
@@ -511,6 +569,12 @@ function startQuiz() {
   }
 
   message.textContent = "";
+  if (selectedDifficulty === "All") {
+    gameDifficulty = "mixed";
+  } else {
+    gameDifficulty = selectedDifficulty.toLowerCase();
+  }
+  gameCategory = selectedCategory;
   activeQuestions = shuffle(filtered).slice(0, MAX_QUESTIONS);
   currentIndex = 0;
   score = 0;

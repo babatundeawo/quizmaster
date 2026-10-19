@@ -64,7 +64,7 @@ service cloud.firestore {
 
       allow create: if signedIn()
         && request.resource.data.keys().hasOnly(
-             ['uid', 'name', 'points', 'correct', 'total', 'createdAt'])
+             ['uid', 'name', 'points', 'correct', 'total', 'difficulty', 'category', 'createdAt'])
         && request.resource.data.uid == request.auth.uid
         && validName(request.resource.data.name)
         && request.resource.data.total is number
@@ -74,6 +74,10 @@ service cloud.firestore {
         && request.resource.data.correct >= 0
         && request.resource.data.correct <= request.resource.data.total
         && request.resource.data.points == request.resource.data.correct * 10
+        && request.resource.data.difficulty in ['easy', 'medium', 'hard', 'mixed']
+        && request.resource.data.category is string
+        && request.resource.data.category.size() > 0
+        && request.resource.data.category.size() <= 30
         && request.resource.data.createdAt == request.time;
 
       allow update, delete: if false;

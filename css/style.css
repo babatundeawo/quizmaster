@@ -235,6 +235,39 @@ footer {
   color: var(--primary);
 }
 
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: white;
+  background-color: #888888;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+
+.badge-easy {
+  background-color: var(--correct);
+}
+
+.badge-medium {
+  background-color: #b57f00;
+}
+
+.badge-hard {
+  background-color: var(--wrong);
+}
+
+.badge-mixed {
+  background-color: var(--primary);
+}
+
+.badge-category {
+  font-size: 0.8rem;
+  color: #777777;
+  margin-left: 6px;
+}
+
 /* Bigger screens */
 @media (min-width: 600px) {
   main {

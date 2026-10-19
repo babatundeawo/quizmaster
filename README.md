@@ -8,7 +8,7 @@ A quiz and trivia game with categories, timers, a question editor, player profil
 - Choose a category and difficulty
 - Timed questions and a live score
 - Question Editor: add your own questions, shared with everyone
-- Player names, stats, and an online top-10 leaderboard
+- Player names, stats, and an online top-10 leaderboard that can be filtered by difficulty level (All, Easy, Medium, Hard, Mixed)
 - Installs on a phone and opens even without internet
 
 ## Built with
@@ -38,7 +38,7 @@ This folder is the finished project as it stands at the end of Session 12 of the
 |------|--------------|
 | `index.html` | All screens (loading, sign-in, name, home, setup, editor, quiz, result, leaderboard) |
 | `css/style.css` | All styles, with colour variables at the top |
-| `js/questions.js` | 24 built-in starter questions in 4 categories |
+| `js/questions.js` | 400 built-in questions: 100 in each of 4 categories (34 easy, 33 medium, 33 hard each) |
 | `js/app.js` | The game logic (ES module) |
 | `js/firebase-config.js` | Firebase connection, questions, players, and scores |
 | `manifest.json` | Makes the app installable |
@@ -53,7 +53,20 @@ This folder is the finished project as it stands at the end of Session 12 of the
    - **Firestore database** created in the **Standard** edition.
    - The rules from `firestore.rules` pasted into Firestore, Rules, and published.
 2. **Run it with Live Server** (the app uses JavaScript modules, so double-clicking `index.html` will not work), or publish it with GitHub Pages.
-3. **Keep the Firebase SDK version** (`12.19.0` in the import lines) the same in all three imports.
+3. **Create the leaderboard index (one time).** The Easy, Medium, Hard and Mixed leaderboard tabs sort and filter at the same time, and Firestore needs an index for that. The All tab works without it.
+   - In the Firebase console open **Firestore database, Indexes, Composite, Add index**.
+   - Collection ID: `scores`. Add field `difficulty` (Ascending), then field `points` (Descending). Query scope: **Collection**. Click **Create**.
+   - Wait a few minutes until the status says **Enabled**.
+   - Shortcut: if you open a level tab before the index exists, the browser console (F12) shows an error with a link. Opening that link pre-fills the same index.
+4. **Keep the Firebase SDK version** (`12.19.0` in the import lines) the same in all three imports.
+
+## How the leaderboard shows difficulty
+
+- Every score is saved with the **difficulty** of the game (`easy`, `medium`, `hard`, or `mixed` when the player chose All) and the **category**.
+- The Leaderboard screen has tabs: **All**, **Easy**, **Medium**, **Hard**, **Mixed**. Each row shows the nickname, the points, a coloured level badge, and the category.
+- Points stay the same (correct answers x 10) at every level, so each level has its **own** top 10. A perfect Easy game does not beat a perfect Hard game, because they are on different boards.
+- Scores saved before this change have no difficulty and are shown as Mixed.
+- After updating from an older version, **publish the new `firestore.rules`** again. The scores rule now requires `difficulty` and `category`, so the old rules and the new app will not agree until you do.
 
 ## Notes
 
