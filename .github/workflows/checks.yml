@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       # Pull requests use dummy Firebase values, so real secrets are never
       # exposed to code that has not been merged yet.
