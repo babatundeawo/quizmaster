@@ -1,77 +1,103 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
+  <img src="docs/assets/logo-light.svg" alt="QuizMaster logo" width="96" height="96">
+</picture>
+
 # QuizMaster
 
-A quiz and trivia game with categories, timers, a question editor, player profiles, and an online leaderboard. Built step by step as a capstone project with Techbase Consultant Services.
+**Think fast. Play smart.**<br>
+A quiz game with 400 questions, difficulty levels, a countdown timer and an online leaderboard.
 
-**Play it:** https://YOUR-USERNAME.github.io/quizmaster/
+[![Deploy site](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/deploy.yml/badge.svg)](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/deploy.yml)
+[![CodeQL](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/codeql.yml/badge.svg)](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/codeql.yml)
+
+[**Play now**](https://YOUR-USERNAME.github.io/quizmaster/) · [Documentation](docs/) · [Report an issue](../../issues)
+
+</div>
+
+<p align="center">
+  <img src="docs/assets/screenshot-landing.png" alt="The QuizMaster start page with a headline, two sign-in buttons and a short explanation of how the game works" width="760">
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshot-setup.png" alt="QuizMaster on a phone, showing the topic and difficulty choices" width="250">
+  &nbsp;&nbsp;
+  <img src="docs/assets/screenshot-quiz.png" alt="QuizMaster on a phone in dark mode, showing a question, a countdown ring and four answer options" width="250">
+</p>
+
+## About
+
+QuizMaster is a free quiz game for curious players of all ages. Pick a topic and a difficulty level, answer before the timer runs out, and see how your score compares on the online leaderboard. Players can also write their own questions for everyone to enjoy.
 
 ## Features
-- Choose a category and difficulty
-- Timed questions and a live score
-- Question Editor: add your own questions, shared with everyone
-- Player names, stats, and an online top-10 leaderboard that can be filtered by difficulty level (All, Easy, Medium, Hard, Mixed)
-- Installs on a phone and opens even without internet
 
-## Built with
-HTML, CSS, JavaScript, GitHub, Firebase (Firestore and Authentication), and a Progressive Web App (manifest and service worker).
+- **400 questions** in four topics: Science, Geography, Maths and Technology, with easy, medium and hard levels
+- **Countdown timer** and instant feedback on every answer
+- **Online leaderboard** with a separate top 10 for each difficulty level
+- **Create your own questions**, shared with every player
+- **Player profiles** with a nickname, best score and games played
+- **Light and dark themes** that follow your device
+- **Works on phones and computers**, and installs like an app
+- **Plays offline** with the built-in questions once it has been opened online
+- **Keyboard friendly**: answer with the keys 1 to 4 or A to D
 
-## Install on a phone
-- **Android (Chrome):** open the link, tap the menu, then Install app.
-- **iPhone (Safari):** open the link, tap Share, then Add to Home Screen.
+## How to use it
 
-## What I learned
-(Write three or four sentences here in your own words.)
+1. **Open the game** and choose **Play as guest** or **Continue with Google**. Guest accounts stay in one browser; Google keeps your scores on every device.
+2. **Choose a nickname.** Please use a nickname, not your real name.
+3. **Start a quiz.** Pick a topic and a difficulty level, then press **Begin quiz**. Each game has up to 10 questions.
+4. **Answer before the ring runs out.** Tap an answer, or press 1 to 4 on a keyboard.
+5. **See your result** and open the **Leaderboard**. Use the tabs to compare scores at the Easy, Medium, Hard and Mixed levels.
+6. **Create questions** from the Create tab. Your questions appear for all players.
 
-## Ideas for the future
-- Sound effects and animations
-- A progress chart and badges
-- More question types (pictures, true or false)
+### Install on a phone
 
----
+- **Android (Chrome):** open the game, tap the three-dot menu, then **Install app**.
+- **iPhone (Safari):** open the game, tap **Share**, then **Add to Home Screen**.
 
-# Teacher notes: using this reference build
+## Tech stack
 
-This folder is the finished project as it stands at the end of Session 12 of the QuizMaster curriculum. Use it to check the student's work or to recover a broken project. The student should still type his own code session by session.
+- HTML, CSS and JavaScript, with no framework and no build tools for the app itself
+- [Firebase](https://firebase.google.com/) Authentication and Firestore for players, questions and scores
+- A web app manifest and a service worker, so the game installs and works offline
+- GitHub Actions and GitHub Pages for automatic checks and publishing
 
-## What is in the folder
+## Project structure
 
-| File | What it does |
-|------|--------------|
-| `index.html` | All screens (loading, sign-in, name, home, setup, editor, quiz, result, leaderboard) |
-| `css/style.css` | All styles, with colour variables at the top |
-| `js/questions.js` | 400 built-in questions: 100 in each of 4 categories (34 easy, 33 medium, 33 hard each) |
-| `js/app.js` | The game logic (ES module) |
-| `js/firebase-config.js` | Firebase connection, questions, players, and scores |
-| `manifest.json` | Makes the app installable |
-| `service-worker.js` | Keeps a copy of the app for offline use |
-| `firestore.rules` | Reference copy of the security rules |
-| `assets/images/icons/` | **Placeholder** icons (192 and 512 pixels). Replace them with the student's own |
+```text
+.
+├── index.html            The game (every screen lives here)
+├── privacy.html          What the game stores, in plain language
+├── 404.html              Page shown for unknown addresses
+├── manifest.json         Makes the game installable
+├── service-worker.js     Saves a copy of the game for offline use
+├── firestore.rules       Security rules for the database
+├── css/
+│   ├── tokens.css        Colours, type, spacing and motion in one place
+│   └── style.css         Layout and components
+├── js/
+│   ├── app.js            Game logic and screens
+│   ├── effects.js        Theme switch, toasts, confetti
+│   ├── questions.js      The 400 built-in questions
+│   ├── firebase-config.js  Database and sign-in functions
+│   └── firebase-env.js   Project settings (filled in during the build)
+├── assets/images/        Icons and the social preview image
+├── docs/                 Guides for running and customising the site
+└── .github/              Automatic checks, publishing and security scans
+```
 
-## Before it will work
+## Contributing
 
-1. **Add your own Firebase config.** Open `js/firebase-config.js` and replace the `PASTE_...` values with the `firebaseConfig` object from your own Firebase project (Project settings, Your apps, Web app). The project needs:
-   - **Authentication** with the **Anonymous** sign-in method switched on (and **Google** if used), and `YOUR-USERNAME.github.io` added under Authorized domains.
-   - **Firestore database** created in the **Standard** edition.
-   - The rules from `firestore.rules` pasted into Firestore, Rules, and published.
-2. **Run it with Live Server** (the app uses JavaScript modules, so double-clicking `index.html` will not work), or publish it with GitHub Pages.
-3. **Create the leaderboard index (one time).** The Easy, Medium, Hard and Mixed leaderboard tabs sort and filter at the same time, and Firestore needs an index for that. The All tab works without it.
-   - In the Firebase console open **Firestore database, Indexes, Composite, Add index**.
-   - Collection ID: `scores`. Add field `difficulty` (Ascending), then field `points` (Descending). Query scope: **Collection**. Click **Create**.
-   - Wait a few minutes until the status says **Enabled**.
-   - Shortcut: if you open a level tab before the index exists, the browser console (F12) shows an error with a link. Opening that link pre-fills the same index.
-4. **Keep the Firebase SDK version** (`12.19.0` in the import lines) the same in all three imports.
+Found a bug or have an idea for a new question topic? [Open an issue](../../issues/new/choose) or send a pull request. [CONTRIBUTING.md](CONTRIBUTING.md) explains how, using only the GitHub website.
 
-## How the leaderboard shows difficulty
+## Security
 
-- Every score is saved with the **difficulty** of the game (`easy`, `medium`, `hard`, or `mixed` when the player chose All) and the **category**.
-- The Leaderboard screen has tabs: **All**, **Easy**, **Medium**, **Hard**, **Mixed**. Each row shows the nickname, the points, a coloured level badge, and the category.
-- Points stay the same (correct answers x 10) at every level, so each level has its **own** top 10. A perfect Easy game does not beat a perfect Hard game, because they are on different boards.
-- Scores saved before this change have no difficulty and are shown as Mixed.
-- After updating from an older version, **publish the new `firestore.rules`** again. The scores rule now requires `difficulty` and `category`, so the old rules and the new app will not agree until you do.
+Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
 
-## Notes
+## Credits
 
-- This build does not include the student's own extras (Play Again, About screen, Change name, Delete button, medals). Those are exercises and homework.
-- The questions the player adds in the editor are saved in Firebase, not in `questions.js`.
-- If you change `MAX_QUESTIONS` or `MIN_QUESTIONS_FOR_LEADERBOARD` in `js/app.js`, change the numbers in the `scores` rule too.
-- If you change any file name in the project, update `FILES_TO_CACHE` in `service-worker.js` and bump `CACHE_NAME` (for example to `quizmaster-v2`).
-- Never put passwords or service account files in this project. The web config is public by design; the security rules protect the data.
+- Typefaces: [Sora](https://fonts.google.com/specimen/Sora) and [Inter](https://fonts.google.com/specimen/Inter), both licensed under the [SIL Open Font License 1.1](https://openfontlicense.org/)
+- Icons and logo: drawn for this project
+- Built with [Firebase](https://firebase.google.com/) and hosted on [GitHub Pages](https://pages.github.com/)

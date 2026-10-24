@@ -1,0 +1,21 @@
+# Build output (created automatically by GitHub Actions)
+dist/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Never commit secrets or private keys
+.env
+.env.*
+*.pem
+*service-account*.json
+serviceAccount*.json
+
+# Logs
+*.log
+node_modules/

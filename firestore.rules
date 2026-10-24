@@ -1,5 +1,6 @@
-// QuizMaster Firestore Security Rules (reference copy)
-// These are published in the Firebase console: Firestore database > Rules > Publish.
+// QuizMaster Firestore Security Rules
+// Published in the Firebase console: Firestore database > Rules > Publish.
+// Everything not listed here is denied by default.
 // Keep the numbers in the "scores" rule (5 and 10) in step with
 // MIN_QUESTIONS_FOR_LEADERBOARD and MAX_QUESTIONS in js/app.js.
 
