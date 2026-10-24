@@ -10,10 +10,10 @@
 **Think fast. Play smart.**<br>
 A quiz game with 400 questions, difficulty levels, a countdown timer and an online leaderboard.
 
-[![Deploy site](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/deploy.yml/badge.svg)](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/deploy.yml)
-[![CodeQL](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/codeql.yml/badge.svg)](https://github.com/YOUR-USERNAME/quizmaster/actions/workflows/codeql.yml)
+[![Deploy site](https://github.com/babatundeawo/quizmaster/actions/workflows/deploy.yml/badge.svg)](https://github.com/babatundeawo/quizmaster/actions/workflows/deploy.yml)
+[![CodeQL](https://github.com/babatundeawo/quizmaster/actions/workflows/codeql.yml/badge.svg)](https://github.com/babatundeawo/quizmaster/actions/workflows/codeql.yml)
 
-[**Play now**](https://YOUR-USERNAME.github.io/quizmaster/) · [Documentation](docs/) · [Report an issue](../../issues)
+[**Play now**](https://babatundeawo.github.io/quizmaster/) · [Documentation](docs/) · [Report an issue](../../issues)
 
 </div>
 
