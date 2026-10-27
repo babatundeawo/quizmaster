@@ -1,6 +1,6 @@
 // QuizMaster service worker: keeps a copy of the app so it opens without internet.
 // Strategy: try the network first (so updates show up), fall back to the saved copy.
-const CACHE_NAME = "quizmaster-v3";
+const CACHE_NAME = "quizmaster-v4";
 
 const FILES_TO_CACHE = [
   "./",
@@ -12,6 +12,7 @@ const FILES_TO_CACHE = [
   "js/theme-init.js",
   "js/effects.js",
   "js/app.js",
+  "js/periods.js",
   "js/questions.js",
   "js/static-page.js",
   "js/firebase-config.js",

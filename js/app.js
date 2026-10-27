@@ -10,6 +10,13 @@ import {
   prefersReducedMotion,
   icon
 } from "./effects.js";
+import {
+  PERIODS,
+  PERIOD_LABELS,
+  getBoardId,
+  getAllBoardIds,
+  describePeriod
+} from "./periods.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -18,6 +25,7 @@ const TIME_PER_QUESTION = 15;
 const BEST_KEY = "quizmasterBestPercent";
 const MAX_QUESTIONS = 10;
 const MIN_QUESTIONS_FOR_LEADERBOARD = 5;
+const LEADERBOARD_SIZE = 10;
 const TIMER_CIRCUMFERENCE = 113.1;
 const RESULT_CIRCUMFERENCE = 301.6;
 const AUTH_WAIT_MS = 8000;
@@ -83,7 +91,8 @@ let authTimer = null;
 let customQuestions = [];
 let sharedLoaded = false;
 let leaderboardRequest = 0;
-let leaderboardLevel = "all";
+let leaderboardPeriod = "weekly";
+let scoreSaving = Promise.resolve(); // the score being sent right now, if any
 
 // ---------- Helpers ----------
 function getBestScore() {
@@ -612,16 +621,18 @@ async function submitScore(correct, total) {
 
   status.textContent = "Sending your score...";
   try {
+    // The four boards for the moment this game ended, in this player's time zone
     await cloud.saveScoreToCloud(
       currentUser.uid,
       currentPlayer.name,
       correct,
       total,
       gameDifficulty,
-      gameCategory
+      gameCategory,
+      getAllBoardIds(new Date())
     );
     status.className = "status status--ok";
-    status.textContent = `Score sent to the leaderboard (${DIFFICULTY_LABELS[gameDifficulty]} level).`;
+    status.textContent = `Score sent to the leaderboard (${correct * 10} points added).`;
   } catch (error) {
     console.log("Could not send score:", error);
     status.className = "status status--error";
@@ -649,7 +660,7 @@ function showResult() {
   const isNewBest = percent > currentPlayer.bestPercent;
 
   updatePlayerStats(percent);
-  submitScore(score, total);
+  scoreSaving = submitScore(score, total); // submitScore handles its own errors
 
   $("result-title").textContent = resultTitle(percent);
 
@@ -689,12 +700,12 @@ function showResult() {
 function openLeaderboard() {
   buildSegmented(
     $("leaderboard-filter"),
-    ["All", "Easy", "Medium", "Hard", "Mixed"],
-    "All",
+    PERIODS.map((period) => PERIOD_LABELS[period]),
+    PERIOD_LABELS.weekly,
     (label) => loadLeaderboard(label.toLowerCase())
   );
   showScreen("leaderboard-screen");
-  loadLeaderboard("all");
+  loadLeaderboard("weekly");
 }
 
 function showSkeletons() {
@@ -731,14 +742,10 @@ function leaderboardRow(entry, position) {
 
   const meta = document.createElement("div");
   meta.className = "lb-meta";
-  // Scores saved before levels existed have no difficulty, so they show as Mixed
-  meta.appendChild(levelBadge(entry.difficulty || "mixed"));
-  if (entry.category) {
-    const category = document.createElement("span");
-    category.className = "badge badge--category";
-    category.textContent = entry.category === "All" ? "All topics" : entry.category;
-    meta.appendChild(category);
-  }
+  const games = document.createElement("span");
+  games.className = "badge badge--category";
+  games.textContent = `${entry.games} game${entry.games === 1 ? "" : "s"}`;
+  meta.appendChild(games);
   if (isMe) {
     const you = document.createElement("span");
     you.className = "lb-you";
@@ -758,13 +765,22 @@ function leaderboardRow(entry, position) {
   return row;
 }
 
-async function loadLeaderboard(level) {
-  leaderboardLevel = level;
+/** What to say when a board has no players yet. */
+const EMPTY_BOARD_TEXT = {
+  weekly: "No scores yet this week. Be the first!",
+  monthly: "No scores yet this month. Be the first!",
+  yearly: "No scores yet this year. Be the first!",
+  lifetime: "No scores yet. Be the first!"
+};
+
+async function loadLeaderboard(period) {
+  leaderboardPeriod = period;
   const list = $("leaderboard-list");
   const message = $("leaderboard-message");
   const retry = $("leaderboard-retry-btn");
   retry.hidden = true;
   message.className = "status";
+  $("leaderboard-period").textContent = describePeriod(period);
 
   if (!cloud || !currentUser || (currentPlayer && currentPlayer.offline)) {
     list.innerHTML = "";
@@ -778,18 +794,43 @@ async function loadLeaderboard(level) {
   showSkeletons();
 
   try {
-    const topScores = await cloud.loadTopScores(level);
+    await scoreSaving; // so a game that was just finished is included
     if (thisRequest !== leaderboardRequest) {
       return; // a newer tab was chosen while we waited
     }
 
+    const boardId = getBoardId(period);
+    const top = await cloud.loadBoardTop(boardId, LEADERBOARD_SIZE);
+
+    // A player outside the top 10 still sees their own place below the list
+    let mine = null;
+    const inTop = top.some((entry) => entry.uid === currentUser.uid);
+    if (!inTop) {
+      try {
+        mine = await cloud.loadMyBoardEntry(boardId, currentUser.uid);
+      } catch (error) {
+        console.log("Could not load your own place:", error);
+      }
+    }
+    if (thisRequest !== leaderboardRequest) {
+      return;
+    }
+
     list.innerHTML = "";
-    if (topScores.length === 0) {
-      message.textContent = "No scores yet at this level. Be the first!";
+    if (top.length === 0) {
+      message.textContent = EMPTY_BOARD_TEXT[period];
       return;
     }
     message.textContent = "";
-    topScores.forEach((entry, i) => list.appendChild(leaderboardRow(entry, i + 1)));
+    top.forEach((entry, i) => list.appendChild(leaderboardRow(entry, i + 1)));
+
+    if (mine) {
+      const note = document.createElement("li");
+      note.className = "lb-note";
+      note.textContent = "Your place";
+      list.appendChild(note);
+      list.appendChild(leaderboardRow(mine, mine.rank));
+    }
   } catch (error) {
     console.log("Could not load the leaderboard:", error);
     if (thisRequest !== leaderboardRequest) {
@@ -797,10 +838,7 @@ async function loadLeaderboard(level) {
     }
     list.innerHTML = "";
     message.className = "status status--error";
-    message.textContent =
-      error && error.code === "failed-precondition"
-        ? "This level needs a one-time database index. See the setup guide in the project's docs."
-        : "Could not load the leaderboard. Check your connection and try again.";
+    message.textContent = "Could not load the leaderboard. Check your connection and try again.";
     retry.hidden = false;
   }
 }
@@ -1267,7 +1305,7 @@ function wireEvents() {
   $("home-btn").addEventListener("click", enterHome);
 
   // Leaderboard and editor
-  $("leaderboard-retry-btn").addEventListener("click", () => loadLeaderboard(leaderboardLevel));
+  $("leaderboard-retry-btn").addEventListener("click", () => loadLeaderboard(leaderboardPeriod));
   $("editor-form").addEventListener("submit", (event) => {
     event.preventDefault();
     saveNewQuestion();

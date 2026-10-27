@@ -185,7 +185,7 @@
         </li>
         <li class="step reveal" data-delay="2">
           <h2 class="step__title">Climb the leaderboard</h2>
-          <p class="step__text">Your best games appear on the online leaderboard, with a board for each level.</p>
+          <p class="step__text">Your points add up on weekly, monthly, yearly and lifetime leaderboards.</p>
         </li>
       </ol>
     </section>
@@ -249,7 +249,7 @@
           <span class="action-card__icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-trophy"></use></svg></span>
           <span>
             <span class="action-card__title">Leaderboard</span><br>
-            <span class="action-card__text">See the top scores at every level.</span>
+            <span class="action-card__text">See the top players this week, month, year and of all time.</span>
           </span>
         </button>
       </div>
@@ -442,12 +442,12 @@
     <section id="leaderboard-screen" class="screen screen--narrow" aria-labelledby="leaderboard-title" hidden>
       <div class="screen__head">
         <h1 class="screen__title" id="leaderboard-title" tabindex="-1" data-focus>Leaderboard</h1>
-        <p class="screen__lead">The top 10 single-game scores. Each level has its own board.</p>
+        <p class="screen__lead">The top 10 players by total points. Every correct answer is worth 10 points.</p>
       </div>
 
       <div class="lb-filters">
-        <div class="segmented" id="leaderboard-filter" role="group" aria-label="Filter by difficulty level"></div>
-        <p class="lb-note">Mixed means the game was played with all difficulty levels.</p>
+        <div class="segmented" id="leaderboard-filter" role="group" aria-label="Choose a leaderboard period"></div>
+        <p class="lb-note" id="leaderboard-period"></p>
       </div>
 
       <p class="status" id="leaderboard-message" role="status"></p>
