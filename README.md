@@ -35,12 +35,12 @@ QuizMaster is a free quiz game for curious players of all ages. Pick a topic and
 
 - **400 questions** in four topics: Science, Geography, Maths and Technology, with easy, medium and hard levels
 - **Countdown timer** and instant feedback on every answer
-- **Online leaderboard** with a separate top 10 for each difficulty level
+- **Online leaderboards** for the week, month, year and all time, adding up each player's points
 - **Create your own questions**, shared with every player
 - **Player profiles** with a nickname, best score and games played
 - **Light and dark themes** that follow your device
 - **Works on phones and computers**, and installs like an app
-- **Plays offline** with the built-in questions once it has been opened online
+- **Plays offline** with the built-in questions once it has been opened online, with a friendly update prompt when a new version is ready
 - **Keyboard friendly**: answer with the keys 1 to 4 or A to D
 
 ## How to use it
@@ -49,7 +49,7 @@ QuizMaster is a free quiz game for curious players of all ages. Pick a topic and
 2. **Choose a nickname.** Please use a nickname, not your real name.
 3. **Start a quiz.** Pick a topic and a difficulty level, then press **Begin quiz**. Each game has up to 10 questions.
 4. **Answer before the ring runs out.** Tap an answer, or press 1 to 4 on a keyboard.
-5. **See your result** and open the **Leaderboard**. Use the tabs to compare scores at the Easy, Medium, Hard and Mixed levels.
+5. **See your result** and open the **Leaderboard**. Use the tabs to switch between the Weekly, Monthly, Yearly and Lifetime boards.
 6. **Create questions** from the Create tab. Your questions appear for all players.
 
 ### Install on a phone
@@ -71,6 +71,7 @@ QuizMaster is a free quiz game for curious players of all ages. Pick a topic and
 ├── index.html            The game (every screen lives here)
 ├── privacy.html          What the game stores, in plain language
 ├── 404.html              Page shown for unknown addresses
+├── offline.html          Page shown when a screen is not saved for offline use
 ├── manifest.json         Makes the game installable
 ├── service-worker.js     Saves a copy of the game for offline use
 ├── firestore.rules       Security rules for the database
@@ -80,10 +81,13 @@ QuizMaster is a free quiz game for curious players of all ages. Pick a topic and
 ├── js/
 │   ├── app.js            Game logic and screens
 │   ├── effects.js        Theme switch, toasts, confetti
+│   ├── pwa.js            Install prompt, iPhone help and update prompt
+│   ├── periods.js        Weekly, monthly and yearly leaderboard periods
 │   ├── questions.js      The 400 built-in questions
 │   ├── firebase-config.js  Database and sign-in functions
 │   └── firebase-env.js   Project settings (filled in during the build)
-├── assets/images/        Icons and the social preview image
+├── scripts/              One-off maintenance script for leaderboard totals
+├── assets/images/        Icons, install screenshots and the social preview image
 ├── docs/                 Guides for running and customising the site
 └── .github/              Automatic checks, publishing and security scans
 ```

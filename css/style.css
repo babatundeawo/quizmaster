@@ -2162,3 +2162,56 @@ html:not(.js) #loading-screen {
     color: #000000;
   }
 }
+
+/* ----- Install and update bar (js/pwa.js) ----- */
+.pwa-bar {
+  position: fixed;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  animation: pwa-bar-in var(--duration-slow) var(--ease-out) both;
+}
+
+body.has-nav .pwa-bar {
+  bottom: calc(var(--nav-height) + var(--space-4) + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 900px) {
+  body.has-nav .pwa-bar {
+    bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  }
+}
+
+.pwa-bar__text {
+  flex: 1 1 14rem;
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.pwa-bar__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+@keyframes pwa-bar-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-bar { animation: none; }
+}

@@ -1,6 +1,7 @@
 // QuizMaster: main application logic.
 // Sections: Settings · State · Helpers · Screens · Account · Setup · Quiz ·
 // Result · Leaderboard · Editor · Sign-in · Start-up.
+import { initPwa } from "./pwa.js";
 import {
   initThemeToggle,
   toast,
@@ -1388,20 +1389,9 @@ async function connectCloud() {
   cloud.watchAuth(onAuthChange);
 }
 
-function registerServiceWorker() {
-  if (!("serviceWorker" in navigator)) {
-    return;
-  }
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js").catch((error) => {
-      console.log("Service worker failed:", error);
-    });
-  });
-}
-
 initThemeToggle($("theme-toggle"));
 wireEvents();
 renderFacts();
 observeReveals();
-registerServiceWorker();
+initPwa();
 connectCloud();

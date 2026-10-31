@@ -1,16 +1,20 @@
-// QuizMaster service worker: keeps a copy of the app so it opens without internet.
-// Strategy: try the network first (so updates show up), fall back to the saved copy.
-const CACHE_NAME = "quizmaster-v4";
+// QuizMaster service worker.
+// Pages: network first, saved copy when offline, branded offline page last.
+// Files (styles, scripts, images, fonts): saved copy first, refreshed quietly.
+// A new version waits until the player taps "Refresh" (see js/pwa.js).
+const CACHE_NAME = "quizmaster-v5";
 
 const FILES_TO_CACHE = [
   "./",
   "index.html",
+  "offline.html",
   "privacy.html",
   "manifest.json",
   "css/tokens.css",
   "css/style.css",
   "js/theme-init.js",
   "js/effects.js",
+  "js/pwa.js",
   "js/app.js",
   "js/periods.js",
   "js/questions.js",
@@ -31,47 +35,35 @@ const EXTRA_HOSTS = [
   { host: "fonts.gstatic.com", prefix: "/" }
 ];
 
-async function saveFiles() {
-  const cache = await caches.open(CACHE_NAME);
-  await cache.addAll(FILES_TO_CACHE);
-}
-
-async function removeOldCaches() {
-  const names = await caches.keys();
-  for (let i = 0; i < names.length; i++) {
-    if (names[i] !== CACHE_NAME) {
-      await caches.delete(names[i]);
-    }
-  }
-}
-
 self.addEventListener("install", function (event) {
-  event.waitUntil(saveFiles());
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(FILES_TO_CACHE);
+    })
+  );
 });
 
 self.addEventListener("activate", function (event) {
-  event.waitUntil(removeOldCaches());
-  self.clients.claim();
+  event.waitUntil(
+    caches
+      .keys()
+      .then(function (names) {
+        return Promise.all(
+          names.filter(function (name) { return name !== CACHE_NAME; })
+            .map(function (name) { return caches.delete(name); })
+        );
+      })
+      .then(function () { return self.clients.claim(); })
+  );
 });
 
-function offlinePage() {
-  const home = self.registration.scope;
-  const html =
-    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
-    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
-    "<title>Offline | QuizMaster</title></head>" +
-    '<body style="font-family:system-ui,sans-serif;text-align:center;padding:4rem 1.5rem;color:#13132a">' +
-    "<h1>You are offline</h1><p>This page is not saved on your device yet.</p>" +
-    '<p><a href="' + home + '">Back to QuizMaster</a></p></body></html>';
-  return new Response(html, {
-    status: 503,
-    statusText: "Offline",
-    headers: { "Content-Type": "text/html; charset=utf-8" }
-  });
-}
+self.addEventListener("message", function (event) {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
 
-async function internetFirst(request) {
+async function pageRequest(request) {
   try {
     const response = await fetch(request);
     if (response.ok) {
@@ -80,15 +72,27 @@ async function internetFirst(request) {
     }
     return response;
   } catch (error) {
-    const saved = await caches.match(request);
-    if (saved) {
-      return saved;
-    }
-    if (request.mode === "navigate") {
-      return offlinePage();
-    }
-    return new Response("You are offline.", { status: 503, statusText: "Offline" });
+    const saved = await caches.match(request, { ignoreSearch: true });
+    return saved || (await caches.match("offline.html"));
   }
+}
+
+async function fileRequest(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const saved = await cache.match(request);
+  const refresh = fetch(request)
+    .then(function (response) {
+      if (response.ok || response.type === "opaque") {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(function () { return null; });
+  if (saved) {
+    return saved;
+  }
+  const fresh = await refresh;
+  return fresh || new Response("You are offline.", { status: 503, statusText: "Offline" });
 }
 
 self.addEventListener("fetch", function (event) {
@@ -96,16 +100,13 @@ self.addEventListener("fetch", function (event) {
   if (request.method !== "GET") {
     return;
   }
-
   const url = new URL(request.url);
   const isOurFile = url.origin === self.location.origin;
   const isExtra = EXTRA_HOSTS.some(function (item) {
     return url.hostname === item.host && url.pathname.startsWith(item.prefix);
   });
-
   if (!isOurFile && !isExtra) {
     return; // leave all other requests (like the database) alone
   }
-
-  event.respondWith(internetFirst(request));
+  event.respondWith(request.mode === "navigate" ? pageRequest(request) : fileRequest(request));
 });

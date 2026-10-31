@@ -23,6 +23,7 @@ DIST = ROOT / "dist"
 FILES = [
     "index.html",
     "404.html",
+    "offline.html",
     "privacy.html",
     "manifest.json",
     "service-worker.js",
